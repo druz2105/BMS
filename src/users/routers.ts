@@ -7,7 +7,7 @@ import {
   loginUser,
   resetPassword,
   updateUser,
-} from "./app";
+} from "./api";
 
 import express from "express";
 

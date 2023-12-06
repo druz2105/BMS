@@ -3,14 +3,13 @@ import bcrypt from "bcrypt";
 
 import jwt from "jsonwebtoken";
 
-import env from "@lib/env";
+import env from "../../lib/env";
 import {
   CreateUserInterface,
   UpdateUserInterface,
   UserLoginInterface,
   UserModelInterface,
-} from "@lib/interfaces/users/userModel";
-
+} from "../../lib/interfaces/users/userModel";
 
 const userSchema = new mongoose.Schema<UserModelInterface>({
   username: {
@@ -57,6 +56,7 @@ export default class UserService {
 
   createUser = async (data: CreateUserInterface) => {
     data.email = data.email.toLowerCase();
+    data.username = data.username.toLowerCase();
     const oldUserEmail = await UserModel.findOne({ email: data.email });
     const oldUserUserName = await UserModel.findOne({
       username: data.username,
@@ -71,6 +71,7 @@ export default class UserService {
       };
     }
     data.password = this.createPassword(data.password);
+    data.active = true;
     return UserModel.create(data);
   };
 
@@ -92,11 +93,12 @@ export default class UserService {
 
   loginUser = async (data: UserLoginInterface) => {
     let user: UserModelInterface | null | undefined = undefined;
-    if (data.email) {
-      data.email = data.email.toLowerCase();
-      user = await UserModel.findOne({ email: data.email });
-    } else if (data.username) {
-      user = await UserModel.findOne({ username: data.username });
+    if (data.identifier) {
+      data.identifier = data.identifier.toLowerCase();
+      user = await UserModel.findOne({ email: data.identifier });
+    }
+    if (!user) {
+      user = await UserModel.findOne({ username: data.identifier });
     }
     if (!user) {
       throw {
@@ -105,9 +107,6 @@ export default class UserService {
     } else {
       const checkValid = this.checkPassword(data.password, user.password);
       if (checkValid) {
-        if (!user.active) {
-          throw { message: "User not verified, check email for verification!" };
-        }
         user.lastLogin = new Date().getTime();
         await user.save();
         user.jwtToken = this.createJWTToken(user);
@@ -130,7 +129,6 @@ export default class UserService {
   checkPassword = (password: string, hash: string) => {
     return bcrypt.compareSync(password, hash);
   };
-
 
   getById = (id: string) => {
     return UserModel.findById(id);
