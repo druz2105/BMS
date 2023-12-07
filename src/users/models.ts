@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema<UserModelInterface>({
     type: Boolean,
     default: false,
   },
+  admin: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Number,
     default: Date.now(),
@@ -51,7 +55,7 @@ const userSchema = new mongoose.Schema<UserModelInterface>({
 
 const UserModel = mongoose.model("User", userSchema);
 
-export default class UserService {
+export class UserService {
   filterableFields = ["name", "email", "first_name", "last_name", "createdAt"];
 
   createUser = async (data: CreateUserInterface) => {
@@ -86,7 +90,7 @@ export default class UserService {
       { user_id: data._id, email: data.email, lastLogin: epochTimeInSeconds },
       env.TOKEN_KEY,
       {
-        expiresIn: "2h",
+        expiresIn: "24h",
       }
     );
   };
@@ -132,53 +136,6 @@ export default class UserService {
 
   getById = (id: string) => {
     return UserModel.findById(id);
-  };
-
-  filterUsers = async (
-    data: UserModelInterface,
-    request: Record<string, any>
-  ) => {
-    let queryData;
-    for (const key in data) {
-      if (!this.filterableFields.includes(key)) {
-        delete data[key];
-      }
-    }
-    let dataString = JSON.stringify(data);
-    data = JSON.parse(
-      dataString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
-    );
-    queryData = UserModel.find(data);
-
-    if (request.query.sort) {
-      queryData = this.sortData(
-        queryData,
-        request.query.sort.split(",").join(" ")
-      );
-    } else {
-      queryData = this.sortData(queryData, "createdAt");
-    }
-
-    if (request.query.fields) {
-      queryData = this.limitFields(
-        queryData,
-        request.query.fields.split(",").join(" ")
-      );
-    }
-    const page = request.query.page * 1 || 1;
-    const limit = request.query.limit * 1 || 10;
-    queryData = this.paginateData(queryData, page, limit);
-    const paginatedData = await queryData;
-    const count = await UserModel.countDocuments(data);
-    const skip = page * limit;
-    const nextPage = skip < count ? page + 1 : null;
-    const previousPage = page - 1 === 0 ? null : page - 1;
-    return {
-      paginatedData: paginatedData,
-      nextPage: nextPage,
-      previousPage: previousPage,
-      count: count,
-    };
   };
 
   findById = async (id: string) => {

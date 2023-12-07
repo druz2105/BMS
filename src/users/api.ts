@@ -1,51 +1,8 @@
-import UserService from "./models";
-
-import url from "url";
-import fs from "fs";
+import { UserService } from "./models";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import env from "../../lib/env";
 
 const userService = new UserService();
-export const getAllUsers = async (request, response) => {
-  try {
-    const queryLength = Object.keys(request.query).length;
-    let data = await userService.filterUsers(
-      queryLength === 0 ? {} : { ...request.query },
-      request
-    );
-    const users = data.paginatedData;
-    const nextPage = data.nextPage;
-    const previousPage = data.previousPage;
-    const count = data.count;
-    if (users.length === 0) {
-      return response.status(400).json({ status: "Failed", users: [] });
-    }
-    const usersData = users.map((user) => {
-      const {
-        email,
-        username,
-        fistName: firstName,
-        lastName: lastName,
-        createdAt,
-        active,
-        _id,
-      } = user;
-      return { email, username, firstName, lastName, createdAt, active, _id };
-    });
-    return response.status(200).json({
-      status: "Success",
-      currentPage: request.query.page * 1 || 1,
-      nextPage: nextPage,
-      previousPage: previousPage,
-      results: count,
-      users: usersData,
-    });
-  } catch (err) {
-    return response
-      .status(400)
-      .json({ status: "Failed", message: err.message });
-  }
-};
 
 export const createUser = async (request, response) => {
   try {

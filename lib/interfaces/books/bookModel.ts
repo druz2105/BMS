@@ -5,5 +5,4 @@ export interface BookModelInterface extends Document {
   image: string;
   description: string;
   price: number;
-  comments?: Array<string>;
 }

@@ -31,6 +31,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <!-- Add your custom scripts if needed -->
 <script>
+    localStorage.removeItem("token")
     function validateField(fieldId, errorId, errorMessage) {
         const fieldValue = document.getElementById(fieldId).value;
         const errorElement = document.getElementById(errorId);
@@ -73,6 +74,7 @@
                     console.log(response, "localStorage.setItem('token', token);>>>>>>>>>>")
                     const token = response.data.jwtToken;
                     localStorage.setItem('token', token);
+                    window.location.href = "/book/list"
                     const successElement = document.getElementById("generalSuccess");
                     successElement.innerText = "User registration successful!!"
                 })

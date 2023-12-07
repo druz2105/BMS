@@ -1,7 +1,7 @@
-export const loginView = (req, res) => {
-  res.render("user/login.ejs");
+export const loginView = (request, response) => {
+  response.render("user/login.ejs");
 };
 
-export const registerView = (req, res) => {
-  res.render("user/register.ejs");
+export const registerView = (request, response) => {
+  response.render("user/register.ejs");
 };

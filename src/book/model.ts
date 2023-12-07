@@ -18,12 +18,6 @@ const bookSchema = new mongoose.Schema<BookModelInterface>({
     type: Number,
     required: true,
   },
-  comments: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Comment",
-    },
-  ],
 });
 
-export default mongoose.model("Book", bookSchema);
+export const BookModel = mongoose.model("Book", bookSchema);

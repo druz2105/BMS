@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import UserService from "@users/models";
+import {UserService} from "@users/models";
 const userService = new UserService();
 
 import { NextFunction, Request, Response } from "express";
@@ -58,19 +58,17 @@ export const jwtDecoder = async (
   let token =
     request.body.token || request.query.token || request.headers.authorization;
   if (!token || !token.startsWith("JWT")) {
-    return response
-      .status(403)
-      .json({ message: "A token is required for authentication" });
+    return response.status(403).json({ message: "Login for authentication" });
   }
   try {
     token = token.replace("JWT ", "");
     const decoded = jwt.verify(token, env.TOKEN_KEY) as Record<string, any>;
     if (!(await verifyLastLogin(decoded.user_id, decoded.lastLogin))) {
-      return response.status(401).send("Invalid Token");
+      return response.status(401).json({ message: "Login for authentication" });
     }
     request.user = await userService.findById(decoded.user_id);
   } catch (err) {
-    return response.status(401).send("Invalid Token");
+    return response.status(401).json({ message: "Login for authentication" });
   }
   next();
 };

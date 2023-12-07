@@ -7,6 +7,7 @@ export interface UserModelInterface extends Document {
   firstName?: string;
   lastName?: string;
   active: boolean;
+  admin: boolean;
   createdAt: number;
   lastLogin: number | null;
 }
@@ -17,6 +18,8 @@ export interface CreateUserInterface {
   password: string;
   firstName?: string;
   lastName?: string;
+  admin?: boolean;
+  active?: boolean;
   [key: string]: any;
 }
 
