@@ -1,12 +1,4 @@
-import {
-  createUser,
-  deleteUser,
-  forgotPassword,
-  getUser,
-  loginUser,
-  resetPassword,
-  updateUser,
-} from "./api";
+import { createUser, deleteUser, getUser, loginUser, updateUser } from "./api";
 import express from "express";
 import { jwtDecoder } from "@www/custom.middelewares";
 
@@ -14,8 +6,6 @@ import { jwtDecoder } from "@www/custom.middelewares";
 export const userAPIRouter = express.Router();
 userAPIRouter.route("/register").post(createUser);
 userAPIRouter.route("/login").post(loginUser);
-userAPIRouter.route("/forgotPassword").post(forgotPassword);
-userAPIRouter.route("/resetPassword").post(resetPassword);
 
 // Requires Authentication
 userAPIRouter.use(jwtDecoder);

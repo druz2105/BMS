@@ -42,7 +42,7 @@ export interface CreateJWTTokenInterface {
   [key: string]: any;
 }
 
-export interface UserLoginInterface {
+export interface LoginUserInterface {
   username?: string;
   email?: string;
   password: string;

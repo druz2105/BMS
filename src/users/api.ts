@@ -1,12 +1,31 @@
 import { UserService } from "./models";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import env from "../../lib/env";
+import {
+  PATCHUserUpdate,
+  POSTUserLogin,
+  POSTUserRegister,
+} from "../../lib/schema/userAPISchemas";
+import {
+  CreateUserInterface,
+  LoginUserInterface,
+  UpdateUserInterface,
+} from "@lib/interfaces/users/userModel";
 
 const userService = new UserService();
 
 export const createUser = async (request, response) => {
   try {
-    const newUser = await userService.createUser(request.body);
+    let payload = request.body as CreateUserInterface;
+    const validate = POSTUserRegister.validate(payload);
+    if (validate.error) {
+      const error = new Error(
+        `Validation Error : ${validate.error.details[0].message}`
+      ) as any;
+      error.errorCode = "generalError";
+      throw error;
+    }
+    const newUser = await userService.createUser(payload);
     const {
       email,
       username,
@@ -35,14 +54,21 @@ export const createUser = async (request, response) => {
 
 export const loginUser = async (request, response) => {
   try {
-    if (!request.body.identifier) {
-      return response.status(400).send("Email or username is required");
+    let payload: LoginUserInterface;
+    if (typeof request.body === "string") {
+      payload = JSON.parse(request.body);
+    } else {
+      payload = request.body as unknown as LoginUserInterface;
     }
-
-    if (!request.body.password) {
-      return response.status(400).send("Password is required");
+    const validate = POSTUserLogin.validate(payload);
+    if (validate.error) {
+      const error = new Error(
+        `Validation Error : ${validate.error.details[0].message}`
+      ) as any;
+      error.errorCode = "generalError";
+      throw error;
     }
-    const user = await userService.loginUser(request.body);
+    const user = await userService.loginUser(payload);
     const {
       email,
       username,
@@ -64,54 +90,6 @@ export const loginUser = async (request, response) => {
       jwtToken,
     };
     return response.status(200).json(data);
-  } catch (err) {
-    console.log(err);
-    return response
-      .status(400)
-      .json({ status: "Failed", message: err.message });
-  }
-};
-
-export const forgotPassword = async (request, response) => {
-  try {
-    const user = await userService.findByEmail(request.body.email);
-    if (user === null) {
-      return response.status(400).json({
-        status: "Success",
-        message: "User with this email not found!",
-      });
-    }
-    return response
-      .status(200)
-      .json({ status: "Success", message: "Email Sent!" });
-  } catch (err) {
-    console.log(err);
-    return response
-      .status(400)
-      .json({ status: "Failed", message: err.message });
-  }
-};
-
-export const resetPassword = async (request, response) => {
-  try {
-    if (!request.body.uniqueString) {
-      return response.status(400).send("Verification Failed");
-    }
-
-    if (!request.body.password) {
-      return response.status(400).send("Password is required");
-    }
-    const decoded = jwt.verify(
-      request.body.uniqueString,
-      env.TOKEN_KEY
-    ) as JwtPayload;
-    await userService.findAndUpdatePassword(
-      decoded.user_id,
-      request.body.password
-    );
-    return response
-      .status(200)
-      .json({ status: "Success", message: "Password Changed" });
   } catch (err) {
     console.log(err);
     return response
@@ -155,9 +133,23 @@ export const getUser = async (request, response) => {
 };
 export const updateUser = async (request, response) => {
   try {
+    let payload: UpdateUserInterface;
+    if (typeof request.body === "string") {
+      payload = JSON.parse(request.body);
+    } else {
+      payload = request.body as unknown as UpdateUserInterface;
+    }
+    const validate = PATCHUserUpdate.validate(payload);
+    if (validate.error) {
+      const error = new Error(
+        `Validation Error : ${validate.error.details[0].message}`
+      ) as any;
+      error.errorCode = "generalError";
+      throw error;
+    }
     const updatedUser = await userService.findAndUpdateUserData(
       request.user._id,
-      request.body
+      payload
     );
     if (updatedUser === null) {
       return response

@@ -7,7 +7,7 @@ import { bookAPIRouter } from "../src/book/apiRouters";
 import { loginView, registerView } from "../src/users/app";
 import {bookDetailView, bookListView} from "../src/book/app";
 import {orderAPIRouter} from "../src/order/apiRouter";
-import {currentOrderView} from "../src/order/app";
+import {currentOrderView, customerOrdersView} from "../src/order/app";
 
 export const app = express();
 app.use("/public", express.static(__dirname.replace("www", "public")));
@@ -23,6 +23,7 @@ app.get("/register", registerView);
 app.get("/book/list", bookListView);
 app.get("/book/detail/:bookId", bookDetailView);
 app.get("/order/active", currentOrderView);
+app.get("/orders/user", customerOrdersView);
 
 app.use(express.json());
 app.use(camelCaseParser);

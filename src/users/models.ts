@@ -7,7 +7,7 @@ import env from "../../lib/env";
 import {
   CreateUserInterface,
   UpdateUserInterface,
-  UserLoginInterface,
+  LoginUserInterface,
   UserModelInterface,
 } from "../../lib/interfaces/users/userModel";
 
@@ -95,7 +95,7 @@ export class UserService {
     );
   };
 
-  loginUser = async (data: UserLoginInterface) => {
+  loginUser = async (data: LoginUserInterface) => {
     let user: UserModelInterface | null | undefined = undefined;
     if (data.identifier) {
       data.identifier = data.identifier.toLowerCase();

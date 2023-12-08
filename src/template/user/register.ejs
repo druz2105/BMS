@@ -52,6 +52,18 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var token = localStorage.getItem("token");
+        console.log("Token:", token);
+
+        if(token){
+            console.log("Redirecting to /book/list");
+            window.location.href = "/book/list";
+        }
+    });
+</script>
+
+<script>
     function validateField(fieldId, errorId, errorMessage) {
         const fieldValue = document.getElementById(fieldId).value;
         const errorElement = document.getElementById(errorId);

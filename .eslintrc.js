@@ -1,7 +1,8 @@
 module.exports = {
   extends: ["eslint:recommended", "plugin:prettier/recommended"],
   env: {
-    node: true
+    node: true,
+    mocha: true
   },
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
@@ -27,5 +28,6 @@ module.exports = {
         code: 128,
       },
     ],
+    "no-undef": "off"
   },
 };

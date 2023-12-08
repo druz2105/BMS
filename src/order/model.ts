@@ -3,6 +3,7 @@ import {
   BookOrderInterface,
   OrderModelInterface,
 } from "@lib/interfaces/orders/orderModel";
+import { BookModel } from "../book/model";
 // Define the book schema
 const bookSchema = new mongoose.Schema<BookOrderInterface>({
   bookId: { type: String, required: true },
@@ -17,6 +18,8 @@ const orderSchema = new mongoose.Schema<OrderModelInterface>({
   bookData: [bookSchema],
   totalPrice: { type: Number, default: 0 },
   orderPlaced: { type: Boolean, default: false },
+  orderConfirmed: { type: Boolean, default: false },
+  orderDate: { type: Number, default: 0 },
 });
 
 export const OrderModel = mongoose.model("Order", orderSchema);
@@ -75,6 +78,15 @@ export class OrderServices {
         throw new Error("Order not found");
       }
 
+      const orderedBooks = placedOrder.bookData;
+      for (const orderedBook of orderedBooks) {
+        const book = await BookModel.findById(orderedBook.bookId);
+        if (!book) {
+          return;
+        }
+        book.stock = book.stock - orderedBook.quantity;
+        await book.save();
+      }
       return placedOrder;
     } catch (error) {
       throw new Error(`Failed to place order: ${error.message}`);

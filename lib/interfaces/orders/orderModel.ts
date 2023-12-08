@@ -10,4 +10,6 @@ export interface OrderModelInterface {
   bookData: Array<BookOrderInterface>;
   totalPrice: number;
   orderPlaced: boolean;
+  orderConfirmed: boolean;
+  orderDate: number;
 }

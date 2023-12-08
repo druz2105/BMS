@@ -1,15 +1,23 @@
-import { OrderServices } from "./model";
-import { BookModel } from "../book/model";
+import {OrderServices} from "./model";
+import {BookModel} from "../book/model";
+import {CreateOrderValidator} from "@lib/schema/orderAPISchema";
 
 export const createOrder = async (request, response) => {
   try {
     const userId = request.user._id;
-    const { bookId, quantity } = request.body;
-    const book = await BookModel.findById(bookId);
+    const validate = CreateOrderValidator.validate(request.body);
+    if (validate.error) {
+      const error = new Error(
+        `Validation Error : ${validate.error.details[0].message}`
+      ) as any;
+      error.errorCode = "generalError";
+      throw error;
+    }
+    const book = await BookModel.findById(request.body.bookId);
     if (book) {
       const order = await OrderServices.createOrUpdateOrder(userId, {
-        bookId: bookId,
-        quantity: quantity,
+        bookId: request.body.bookId,
+        quantity: request.body.quantity,
         title: book.title,
         price: book.price,
       });

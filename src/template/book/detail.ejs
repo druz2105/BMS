@@ -93,10 +93,12 @@
 
     <div class="form-group">
         <label class="quantity-label" for="quantity">Quantity:</label>
-        <input class="form-control quantity-input" type="number" id="quantity" name="quantity" min="1" value="1">
+        <input class="form-control quantity-input" type="number" id="quantity" name="quantity" min="1" value="1" oninput="validateQuantity()">
     </div>
 
     <button class="btn btn-success add-to-cart-btn" onclick="addToCart()">Add to Cart</button>
+    <span id="generalSuccess" class="text-success"></span>
+    <span id="generalError" class="text-danger"></span>
 </div>
 
 <!-- Include Bootstrap JS and Popper.js -->
@@ -106,6 +108,23 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
+    const successSpan = document.getElementById("generalSuccess")
+    const errorSpan = document.getElementById("generalError")
+    function clearMessages() {
+        successSpan.innerText = "";
+        errorSpan.innerText = "";
+    }
+    setInterval(clearMessages, 3000);
+
+    function validateQuantity() {
+        const quantityInput = document.getElementById("quantity");
+        const quantityValue = quantityInput.value;
+
+        if (quantityValue < 1) {
+            quantityInput.value = 1;
+        }
+    }
+
     async function fetchBookDetails() {
         try {
             const token = localStorage.getItem("token")
@@ -117,11 +136,11 @@
             const urlParts = window.location.pathname.split('/');
             const bookId = urlParts[urlParts.length - 1];
 
-            const response = await axios.get(`http://localhost:3000/api/v1/book/detail/${bookId}`, {headers: headers});
+            const response = await axios.get(`/api/v1/book/detail/${bookId}`, {headers: headers});
             const bookData = response.data;
             console.log(bookData, "bookData>>>>>>>>>")
             // Update the book details on the page
-            document.getElementById('bookImage').src = `http://localhost:3000/public/${bookData.image}`;
+            document.getElementById('bookImage').src = `/public/${bookData.image}`;
             document.getElementById('bookTitle').textContent = bookData.title;
             document.getElementById('bookDescription').textContent = bookData.description;
             document.getElementById('bookPrice').textContent = `$${bookData.price.toFixed(2)}`;
@@ -129,6 +148,8 @@
             console.error('Error fetching book details:', err);
             if(['401', '403'].includes(`${err.response.status}` || '')) {
                 window.location.href = "/login"
+            } else {
+                errorSpan.innerText = err.response.message || "Something went wrong"
             }
         }
     }
@@ -143,11 +164,13 @@
         const bookId = urlParts[urlParts.length - 1];
         const quantity = document.getElementById('quantity').value;
         try {
-            const response = await axios.post(`http://localhost:3000/api/v1/order/create/`,{bookId: bookId, quantity: quantity} , {headers: headers});
-            alert("Added to cart")
+            const response = await axios.post(`/api/v1/order/create/`,{bookId: bookId, quantity: quantity} , {headers: headers});
+            successSpan.innerText = "Added to cart"
         } catch (err) {
             if (['401', '403'].includes(`${err.response.status}` || '')) {
                 window.location.href = "/login"
+            } else {
+                errorSpan.innerText = err.response.message || "Something went wrong"
             }
         }
 

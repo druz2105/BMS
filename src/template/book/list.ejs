@@ -95,10 +95,12 @@
                     window.location.href = `/book/detail/${book._id}`;
                 };
                 card.innerHTML = `
-                  <img class="card-img-top" src="http://localhost:3000/public/${book.image}" height="350" alt="">
+                  <img class="card-img-top" src="/public/${book.image}" height="350" alt="">
                    <div class="card-body">
-                        <h5 class="card-title">${book.title}</h5>
+                        <h5 class="card-title">${book.title} by ${book.author}</h5>
                         <h5 class="card-title">${book.price}</h5>
+                        <p class="card-title">Available: ${book.stock}</p>
+                        <p class="card-title">Genere: ${book.genre}</p>
                         <p class="card-text">${book.description}</p>
                    </div>
                 `
@@ -111,6 +113,8 @@
         } catch (err) {
             if(['401', '403'].includes(`${err.response.status}` || '')) {
                 window.location.href = "/login"
+            } else {
+                alert("Something went wrong" || err.response.message)
             }
         }
     }
